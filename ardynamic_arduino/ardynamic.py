@@ -56,10 +56,67 @@ def set_variable_register(variable_register_index, value):
         sign = '-'
     return "#010:009:"+sign+ to_str(value,5)+to_str(variable_register_index,3)+"$"
 
-def set_string_register(which_string, string):
+def set_string_register(which_string_register, string):
     if(len(string)>48):
         print("ERROR: len(string) must be <=48   but len(string) =(" + str(len(string)) + ") ")
         return None
-    
+    return "#011:"+to_str(len(string)+2,3)+":"+to_str(which_string_register,2)+string+"$"
+
+def should_print_read(which_read, should):
+    if(should == 'NO' or should == 0):
+        return "012:004:0"+to_str(which_read,3)+"$"
+    elif(should == 'YES' or should == 1):
+        return "012:004:1"+to_str(which_read,3)+"$"
+    else:
+        print("ERROR:given answer= (" + str(should) + ") is not defined")
+        return None
+
+def should_print_read(which_read, should):
+    if(should == 'NO' or should == 0):
+        return "#012:004:0"+to_str(which_read,3)+"$"
+    elif(should == 'YES' or should == 1):
+        return "#012:004:1"+to_str(which_read,3)+"$"
+    else:
+        print("ERROR:given answer= (" + str(should) + ") is not defined")
+        return None
+
+def should_print_variable(which_variable, should):
+    if (should == 'NO' or should == 0):
+        return "#013:004:0" + to_str(which_variable, 3) + "$"
+    elif (should == 'YES' or should == 1):
+        return "#013:004:1" + to_str(which_variable, 3) + "$"
+    else:
+        print("ERROR:given answer= (" + str(should) + ") is not defined")
+        return None
+
+def change_print_mode(which_print_mode):
+    if(which_print_mode>=0 and which_print_mode<=2):
+        return "#014:002:"+to_str(which_print_mode,2)+"$"
+    else:
+        print("ERROR:given print_mode= (" + str(which_print_mode) + ") is not defined")
+
+def should_arduino_give_feedback(should):
+    if (should == 'NO' or should == 0):
+        return "#015:001:0$"
+    elif (should == 'YES' or should == 1):
+        return "#015:001:1$"
+    else:
+        print("ERROR:given answer= (" + str(should) + ") is not defined")
+        return None
+
+def reset_print_registers():
+    return "#016:001:0$"
+
+def reset_print_read_register():
+    return "#016:001:1$"
+
+def reset_print_variable_register():
+    return "#016:001:2$"
+
+
+
+
+
+
 
 

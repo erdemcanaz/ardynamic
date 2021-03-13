@@ -193,18 +193,18 @@ int convert_to_int(int start, int integer_length) {
 //TO SIMPLFY CODE
 //PRINT FORMAT; TYPE:type.val:  COMMENT: COMMENT.val:    PIN:pin.val:  ---ANYTHING---);
 void value_type_0() {//---
-  Serial.println("#TPYE:0:DESCRIPTION:not_in_use$");
+  if (GIVE_FEEDBACK)Serial.println("#TPYE:0:DESCRIPTION:not_in_use$");
 }
 void value_type_1() {//INPUT_FLOAT
   if (!isValueNumeric(8, 3))return;
   int pin_no = convert_to_int(8, 3);
 
   if (PIN_RESERVED_REGISTER[pin_no]) {
-    Serial.println("#TYPE:1:COMMENT:pin is reserved:PIN:" + String(pin_no) + "$");
+    if (GIVE_FEEDBACK)Serial.println("#TYPE:1:COMMENT:pin is reserved:PIN:" + String(pin_no) + "$");
     return;
   }
   PIN_MODE_REGISTER[pin_no] = 0;
-  Serial.println("#TYPE:1:COMMENT:pin floats:PIN:" + String(pin_no) + "$");
+  if (GIVE_FEEDBACK)Serial.println("#TYPE:1:COMMENT:pin floats:PIN:" + String(pin_no) + "$");
 
 }
 void value_type_2() {//INPUT_PULL_UP
@@ -212,28 +212,28 @@ void value_type_2() {//INPUT_PULL_UP
   int pin_no = (int)(data[8] - '0') * 100 + (int)(data[9] - '0') * 10 + (int)(data[10] - '0')  ;
 
   if (PIN_RESERVED_REGISTER[pin_no]) {
-    Serial.println("#TYPE:2:COMMENT:pin is reserved:PIN:" + String(pin_no) + "$");
+    if (GIVE_FEEDBACK)Serial.println("#TYPE:2:COMMENT:pin is reserved:PIN:" + String(pin_no) + "$");
     return;
   }
   PIN_MODE_REGISTER[pin_no] = 1;
-  Serial.println("#TYPE:2:COMMENT:pin is pulled_up:PIN:" + String(pin_no) + "$");
+  if (GIVE_FEEDBACK)Serial.println("#TYPE:2:COMMENT:pin is pulled_up:PIN:" + String(pin_no) + "$");
 
 }
 void value_type_3() {//---
-  Serial.println("#TPYE:3:DESCRIPTION:not_in_use$");
+  if (GIVE_FEEDBACK)Serial.println("#TPYE:3:DESCRIPTION:not_in_use$");
 }
 void value_type_4() {//DIGITAL_READ
   if (!isValueNumeric(8, 8))return;
   int pin_no = convert_to_int(8, 3);
   int period_ms = convert_to_int(11, 5);
   if (PIN_RESERVED_REGISTER[pin_no]) {
-    Serial.println("#TYPE:4:COMMENT:pin is reserved:PIN:" + String(pin_no) + "$");
+    if (GIVE_FEEDBACK)Serial.println("#TYPE:4:COMMENT:pin is reserved:PIN:" + String(pin_no) + "$");
     return;
   }
   PIN_FUNCTION_REGISTER[pin_no] = 1;
   PIN_PERIOD_REGISTER[pin_no] = period_ms;
 
-  Serial.println("#TYPE:4:COMMENT:pin " + String(pin_no) + " performs digital read for once after every" + String(period_ms) + "ms:PIN:" + String(pin_no) + "$");
+  if (GIVE_FEEDBACK)Serial.println("#TYPE:4:COMMENT:pin " + String(pin_no) + " performs digital read for once after every" + String(period_ms) + "ms:PIN:" + String(pin_no) + "$");
 
 }
 void value_type_5() {//DIGITAL_WRITE
@@ -243,10 +243,10 @@ void value_type_5() {//DIGITAL_WRITE
   int logic_value = convert_to_int (11, 1);
 
   if (PIN_RESERVED_REGISTER[pin_no]) {
-    Serial.println("#TYPE:5:COMMENT:pin is reserved:PIN:" + String(pin_no) + "$");
+    if (GIVE_FEEDBACK)Serial.println("#TYPE:5:COMMENT:pin is reserved:PIN:" + String(pin_no) + "$");
     return;
   }
-  Serial.println("#TYPE:5:COMMENT:pin " + String(pin_no) + " is written digitaly as(" + String(logic_value) + "):PIN:" + String(pin_no) + "$");
+  if (GIVE_FEEDBACK)Serial.println("#TYPE:5:COMMENT:pin " + String(pin_no) + " is written digitaly as(" + String(logic_value) + "):PIN:" + String(pin_no) + "$");
   PIN_FUNCTION_REGISTER[pin_no] = 2;
   PIN_STATE_REGISTER[pin_no] = logic_value;
 
@@ -256,10 +256,10 @@ void value_type_6() {//ANALOG_READ
   int pin_no = convert_to_int(8, 3);
   int period_ms = convert_to_int (11, 5);
   if (PIN_RESERVED_REGISTER[pin_no]) {
-    Serial.println("#TYPE:6:COMMENT:pin is reserved:PIN:" + String(pin_no) + "$");
+    if (GIVE_FEEDBACK)Serial.println("#TYPE:6:COMMENT:pin is reserved:PIN:" + String(pin_no) + "$");
     return;
   }
-  Serial.println("#TYPE:6:COMMENT:pin " + String(pin_no) + " performs analog read for once after every" + String(period_ms) + "ms:PIN:" + String(pin_no) + "$");
+  if (GIVE_FEEDBACK)Serial.println("#TYPE:6:COMMENT:pin " + String(pin_no) + " performs analog read for once after every" + String(period_ms) + "ms:PIN:" + String(pin_no) + "$");
   PIN_FUNCTION_REGISTER[pin_no] = 3;
   PIN_PERIOD_REGISTER[pin_no] = period_ms;
 
@@ -269,10 +269,10 @@ void value_type_7() {//ANALOG_WRITE
   int pin_no = convert_to_int(8, 3);
   int byte_duty = convert_to_int (11, 3);
   if (PIN_RESERVED_REGISTER[pin_no]) {
-    Serial.println("#TYPE:7:COMMENT:pin is reserved:PIN:" + String(pin_no) + "$");
+    if (GIVE_FEEDBACK)Serial.println("#TYPE:7:COMMENT:pin is reserved:PIN:" + String(pin_no) + "$");
     return;
   }
-  Serial.println("#TYPE:7:COMMENT:pin " + String(pin_no) + " has dutty of (" + String(byte_duty) + "/255):PIN:" + String(pin_no) + "$");
+  if (GIVE_FEEDBACK)Serial.println("#TYPE:7:COMMENT:pin " + String(pin_no) + " has dutty of (" + String(byte_duty) + "/255):PIN:" + String(pin_no) + "$");
   PIN_FUNCTION_REGISTER[pin_no] = 4;
   PIN_DUTY_REGISTER[pin_no] = byte_duty;
 
@@ -283,20 +283,20 @@ void value_type_8() {//FAKE_ANALOG_WRITE
   int period_ms = convert_to_int (11, 5);
   int duty = convert_to_int (16, 3);
   if (duty > 100) {
-    Serial.println("#TYPE:8:COMMENT:duty can not be greater than 100:PIN:" + String(pin_no) + "$");
+    if (GIVE_FEEDBACK)Serial.println("#TYPE:8:COMMENT:duty can not be greater than 100:PIN:" + String(pin_no) + "$");
   }
   if (PIN_RESERVED_REGISTER[pin_no]) {
-    Serial.println("#TYPE:8:COMMENT:pin is reserved:PIN:" + String(pin_no) + "$");
+    if (GIVE_FEEDBACK)Serial.println("#TYPE:8:COMMENT:pin is reserved:PIN:" + String(pin_no) + "$");
     return;
   }
-  Serial.println("#TYPE:8:COMMENT:pin " + String(pin_no) + "'s dutty is (" + String(duty) + "/100) and it's period is " + String(period_ms) + " ms:PIN:" + String(pin_no) + "$");
+  if (GIVE_FEEDBACK)Serial.println("#TYPE:8:COMMENT:pin " + String(pin_no) + "'s dutty is (" + String(duty) + "/100) and it's period is " + String(period_ms) + " ms:PIN:" + String(pin_no) + "$");
   PIN_FUNCTION_REGISTER[pin_no] = 5;
   PIN_PERIOD_REGISTER[pin_no] = period_ms;
   PIN_DUTY_REGISTER[pin_no] = duty;
   PIN_ON_TIME_REGISTER[pin_no] = (int)(period_ms * (duty / 100.0));
 }
 void value_type_9() {//CHANGE_BAUD_RATE
-  Serial.println("#TPYE:9:DESCRIPTION:not_in_use$");
+  if (GIVE_FEEDBACK)Serial.println("#TPYE:9:DESCRIPTION:not_in_use$");
 }
 void value_type_10() { //SAVE_INTEGER_VALUE_TO_VARIABLE_REGISTER
   if (!isValueNumeric(8, 9))return;
@@ -304,20 +304,20 @@ void value_type_10() { //SAVE_INTEGER_VALUE_TO_VARIABLE_REGISTER
   int variable_register_index = convert_to_int(14, 3);
   if (data[8] == '-') value = -value;
   VARIABLE_REGISTER_INT[variable_register_index] = value;
-  Serial.println("#TYPE:10:COMMENT:integer value(" + String(value) + ") is saved to variable_register[" + String(variable_register_index) + "] :INDEX:" + String(variable_register_index) + "$");
+  if (GIVE_FEEDBACK)Serial.println("#TYPE:10:COMMENT:integer value(" + String(value) + ") is saved to variable_register[" + String(variable_register_index) + "] :INDEX:" + String(variable_register_index) + "$");
 }
 void value_type_11(int value_length) { //SAVE_STRING_TO_STRING_DATA_REGISTER
   if (isValueNumeric(8, 2)) {
     int string_length = value_length - 2;
     int which_string = convert_to_int(8, 2);
     STRING_LENGTH_REGISTER[which_string] = string_length;
-    Serial.print("#TYPE:11:DESCRIPTION: save string (len==" + String(string_length) + ") to string_register[" + String(which_string) + "]:STRING:");
+    if (GIVE_FEEDBACK)Serial.print("#TYPE:11:DESCRIPTION: save string (len==" + String(string_length) + ") to string_register[" + String(which_string) + "]:STRING:");
     for (int i = 0 ; i < string_length; i++)
     {
       STRING_DATA_REGISTER[which_string][i] = data[10 + i];
-      Serial.print((char)data[10 + i]);
+      if (GIVE_FEEDBACK)Serial.print((char)data[10 + i]);
     }
-    Serial.println('$');
+    if (GIVE_FEEDBACK)Serial.println('$');
   }
 }
 void value_type_12() { //PRINT_READ_REGISTER
@@ -326,9 +326,9 @@ void value_type_12() { //PRINT_READ_REGISTER
   int print_read_register_index = convert_to_int(9, 3);
   PRINT_READ_REGISTER[print_read_register_index] = logic_val;
   if (logic_val == 0) {
-    Serial.println("#TYPE:12:COMMENT: read_register[" + String(print_read_register_index) + "] will not be printed:INDEX:" + String(print_read_register_index) + "$");
+    if (GIVE_FEEDBACK)Serial.println("#TYPE:12:COMMENT: read_register[" + String(print_read_register_index) + "] will not be printed:INDEX:" + String(print_read_register_index) + "$");
   } else {
-    Serial.println("#TYPE:12:COMMENT: read_register[" + String(print_read_register_index) + "] will be printed:INDEX:" + String(print_read_register_index) + "$");
+    if (GIVE_FEEDBACK)Serial.println("#TYPE:12:COMMENT: read_register[" + String(print_read_register_index) + "] will be printed:INDEX:" + String(print_read_register_index) + "$");
   }
 }
 void value_type_13() { //PRINT_VARIABLE_REGISTER
@@ -337,40 +337,43 @@ void value_type_13() { //PRINT_VARIABLE_REGISTER
   int print_variable_register_index = convert_to_int(9, 3);
   PRINT_VARIABLE_REGISTER_INT[print_variable_register_index] = logic_val;
   if (logic_val == 0) {
-    Serial.println("#TYPE:12:COMMENT: variable_register[" + String(print_variable_register_index) + "] will not be printed:INDEX:" + String(print_variable_register_index) + "$");
+    if (GIVE_FEEDBACK)Serial.println("#TYPE:12:COMMENT: variable_register[" + String(print_variable_register_index) + "] will not be printed:INDEX:" + String(print_variable_register_index) + "$");
   } else {
-    Serial.println("#TYPE:12:COMMENT: variable_register[" + String(print_variable_register_index) + "] will be printed:INDEX:" + String(print_variable_register_index) + "$");
+    if (GIVE_FEEDBACK)Serial.println("#TYPE:12:COMMENT: variable_register[" + String(print_variable_register_index) + "] will be printed:INDEX:" + String(print_variable_register_index) + "$");
   }
 }
 void value_type_14() { //CHANGE_PRINT_MODE
   if (!isValueNumeric(8, 2))return;
   int print_mode = convert_to_int(8, 2);
   PRINT_MODE = print_mode;
-  Serial.println("#TYPE:14:COMMENT: print_mode is " + String(PRINT_MODE) + ":PRINT_MODE:" + String(PRINT_MODE) + "$");
+  if (GIVE_FEEDBACK)Serial.println("#TYPE:14:COMMENT: print_mode is " + String(PRINT_MODE) + ":PRINT_MODE:" + String(PRINT_MODE) + "$");
 }
 void value_type_15() { //GIVE FEEDBACK
   if (!isValueNumeric(8, 1))return;
-  int logic_val = convert_to_int(8, 2);
+  int logic_val = convert_to_int(8, 1);
   if (logic_val) GIVE_FEEDBACK = true;
   else GIVE_FEEDBACK = false;
+
   if (GIVE_FEEDBACK)Serial.println("#TYPE:15:COMMENT: arduino gives feedback$");
-  else Serial.println("#TYPE:15:COMMENT: arduino does not give feedback$");
+  else {
+    if (GIVE_FEEDBACK)Serial.println("#TYPE:15:COMMENT: arduino does not give feedback$");
+  }
 }
 void value_type_16() { //RESET_PRINT_REGISTERS
   if (!isValueNumeric(8, 1))return;
   int which_to_reset = convert_to_int(8, 1);//T={0,1,2}, 0:reset both; 1:reset read; 2:reset variable;
   if (which_to_reset == 1) {
     for (int i = 0; i < MAX_PIN; i++)PRINT_READ_REGISTER[i] = 0;
-    Serial.println("#TYPE:16:COMMENT:print_read_register is refreshed$");
+    if (GIVE_FEEDBACK)Serial.println("#TYPE:16:COMMENT:print_read_register is refreshed$");
   }
   else if (which_to_reset == 2) {
     for (int i = 0; i < MAX_PIN; i++)PRINT_VARIABLE_REGISTER_INT[i] = 0;
-    Serial.println("#TYPE:16:COMMENT:print_variable_register_int is refreshed$");
+    if (GIVE_FEEDBACK)Serial.println("#TYPE:16:COMMENT:print_variable_register_int is refreshed$");
   }
   else if (which_to_reset == 0) {
     for (int i = 0; i < MAX_PIN; i++)PRINT_READ_REGISTER[i] = 0;
     for (int i = 0; i < MAX_PIN; i++)PRINT_VARIABLE_REGISTER_INT[i] = 0;
-    Serial.println("#TYPE:16:COMMENT:print_read_register & print_variable_register_int are refreshed$");
+    if (GIVE_FEEDBACK)Serial.println("#TYPE:16:COMMENT:print_read_register & print_variable_register_int are refreshed$");
   }
 
 }
