@@ -84,7 +84,6 @@ def write_to_port():
                         reply_from_slave += SERIAL.read().decode("utf-8")
                     reply_from_slave = remove_unaccepted_characters(reply_from_slave)
 
-                print(reply_from_slave)
                 if (expected_acknowledgment_msg == reply_from_slave):
                     if (write_print_connection): print(
                         current_date() + "-(connected to port \"" + str(ports.device) + "\")")
