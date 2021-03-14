@@ -1,4 +1,5 @@
 //PARAMETERS
+//BUFFER SIZE IS 64: SO MASTER DEVICE MUST WAIT A BIT FOR ARDUINO TO READ BUFFER OR ACKNOWLEDGEMENT IS NEEDED.
 char data[80];                    //Records serial read to be processed later
 const char start_del = '#';       //first character of any serial data
 const char end_del = '$';         //last character of any serial data
