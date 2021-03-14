@@ -31,13 +31,14 @@ def write_to_port(instruction):
     global SERIAL
     wait_seconds_acknowledgment = 0.05
     expected_acknowledgment_msg = "#HELLO,ITS ME$"
-    wait_seconds = 0.1
+    wait_seconds_write= 0.05
+    delay_if_trying_to_connect= 2
     print_succes = True
     print_error  = True
     print_reply  = True
     baud_rate = 9600
 
-    if(time.time()-write_to_port.LAST_TIME<wait_seconds):
+    if(time.time()-write_to_port.LAST_TIME<wait_seconds_write):
         return False
     else:
         write_to_port.LAST_TIME=time.time()
@@ -51,16 +52,22 @@ def write_to_port(instruction):
             SERIAL.close()
             return False
     else:
+        write_to_port.LAST_TIME =time.time()+delay_if_trying_to_connect
         comlist = serial.tools.list_ports.comports()
         if(len(comlist)==0 and print_error): print(current_date() + "-(no port is available)")
         for ports in comlist:
             try:
-                    SERIAL = serial.Serial(port=ports.device, baudrate=baud_rate, parity=serial.PARITY_ODD,stopbits=serial.STOPBITS_TWO, bytesize=serial.SEVENBITS, timeout=0.2)
-                    #connection is established
+                    SERIAL = serial.Serial(port=ports.device, baudrate=baud_rate, parity=serial.PARITY_NONE,stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS,write_timeout=0.3)
+                    time.sleep(0.1) #let arduino to configure himself
                     SERIAL.write(ardynamic.arduino_is_that_you().encode("utf-8"))
                     time.sleep(wait_seconds_acknowledgment)
-                    reply_from_slave = remove_unaccepted_characters(SERIAL.readline().decode("utf-8"))
 
+                    reply_from_slave = ""
+                    if(SERIAL.in_waiting!=0):
+                        while (SERIAL.in_waiting>0):
+                            reply_from_slave += SERIAL.read().decode("utf-8")
+                        reply_from_slave = remove_unaccepted_characters(reply_from_slave)
+                    print(reply_from_slave)
                     if(expected_acknowledgment_msg == reply_from_slave):
                         if (print_succes): print(current_date() + "-(connected to port \"" +str(ports.device)+ "\")")
                         if (print_reply):  print(current_date() + "-(slave salutes you \""+reply_from_slave+"\" port:\"" +str(ports.device)+ "\")")
@@ -69,11 +76,9 @@ def write_to_port(instruction):
                         if (print_error): print(current_date() + "-{this \""+str(ports.device)+"\" device is not arduino}")
                         SERIAL.close()
 
-
             except:
                     if (print_error): print(current_date() + "-{could not connected to ("+str(ports.device)+")}")
                     SERIAL.close()
-
     return False
 write_to_port.LAST_TIME = time.time()
 
@@ -86,6 +91,7 @@ def read_from_port(instruction):
 #PROGRAM---------------------
 while True:
     write_to_port(ardynamic.arduino_is_that_you())
+   # print (time.time())
 
 
 

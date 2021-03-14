@@ -196,7 +196,7 @@ int convert_to_int(int start, int integer_length) {
 //PRINT FORMAT; TYPE:type.val:  COMMENT: COMMENT.val:    PIN:pin.val:  ---ANYTHING---);
 void value_type_0(int value_length) {//---
   if (!isValueNumeric(8, 3))return;
-  if(value_length==3 && convert_to_int(8, 3)==0) Serial.println("#HELLO,0ITS ME$");
+  if(value_length==3 && convert_to_int(8, 3)==0) Serial.println("#HELLO,ITS ME$");
 }
 void value_type_1() {//INPUT_FLOAT
   if (!isValueNumeric(8, 3))return;
