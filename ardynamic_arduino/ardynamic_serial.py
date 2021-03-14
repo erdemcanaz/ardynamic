@@ -34,14 +34,15 @@ def write_to_port():
     write_timeout = 0.2
     read_timeout = 0.2
     expected_acknowledgment_msg = "#YES,I AM HERE$"
-    wait_seconds_acknowledgment = 0.05
-    wait_seconds_before_write = 0.1  # Do not write continuosuly, wait this much before another insturction
+    wait_seconds_acknowledgment = 0.05  # ask for acknowledgement, then wait slave to send all the bytes over the port
+    wait_seconds_before_write = 0.05 # Do not write continuosuly, wait this much before another insturction
     wait_seconds_let_slave_configure_himself = 0.1  # After connecting to a port, wait this much
     delay_if_trying_to_connect = 1  # if SERIAL.isOpen() == False; wait this much until next attempt
-    print_connection = True  # if port is opened
-    print_sent = True  # data writed to the port
-    print_error = True  # any kind of error
-    print_salute = True  # slave salutes you as
+    # INFORM
+    global write_print_connection  # if port is opened
+    global write_print_sent  # data writed to the port
+    global write_print_error  # any kind of error
+    global write_print_salute  # slave salutes you as
 
     # DO NOT MESS
     if (time.time() - write_to_port.LAST_TIME < wait_seconds_before_write):
@@ -56,19 +57,19 @@ def write_to_port():
     if (SERIAL.isOpen()):
         try:
             SERIAL.write(instruction.encode())
-            if (print_sent): print(
+            if (write_print_sent): print(
                 current_date() + "-(instruction \"" + instruction + "\" has been succesfully sent over \"" + str(
                     SERIAL.name) + "\")")
             INSTRUCTION_QUEUE.pop(0)  # remove this instruction from queue
             return True  # instruction has been sent
         except:
-            if (print_error): print(current_date() + "-{communication has been lost during data transfer}")
+            if (write_print_error): print(current_date() + "-{communication has been lost during data transfer}")
             SERIAL.close()
             return False
     else:
         write_to_port.LAST_TIME = time.time() + delay_if_trying_to_connect
         comlist = serial.tools.list_ports.comports()
-        if (len(comlist) == 0 and print_error): print(current_date() + "-(no port is available)")
+        if (len(comlist) == 0 and write_print_error): print(current_date() + "-(no port is available)")
         for ports in comlist:
             try:
                 SERIAL = serial.Serial(port=ports.device, baudrate=baud_rate, parity=serial.PARITY_NONE,
@@ -85,17 +86,18 @@ def write_to_port():
 
                 print(reply_from_slave)
                 if (expected_acknowledgment_msg == reply_from_slave):
-                    if (print_connection): print(current_date() + "-(connected to port \"" + str(ports.device) + "\")")
-                    if (print_salute):  print(
+                    if (write_print_connection): print(
+                        current_date() + "-(connected to port \"" + str(ports.device) + "\")")
+                    if (write_print_salute):  print(
                         current_date() + "-(slave salutes you \"" + reply_from_slave + "\" port:\"" + str(
                             ports.device) + "\")")
                     return True
                 else:
-                    if (print_error): print(
+                    if (write_print_error): print(
                         current_date() + "-{this \"" + str(ports.device) + "\" device is not my slave!}")
                     SERIAL.close()
             except:
-                if (print_error): print(current_date() + "-{could not connected to (" + str(ports.device) + ")}")
+                if (write_print_error): print(current_date() + "-{could not connected to (" + str(ports.device) + ")}")
                 SERIAL.close()
     return False
 
@@ -103,14 +105,14 @@ def write_to_port():
 def read_from_port():
     global SERIAL
     read_from_port.LAST_TIME  # seconds from epoch
-    wait_seconds_before_read = 0.05
+    wait_seconds_before_read = 0.01
 
     if (time.time() - write_to_port.LAST_TIME < wait_seconds_before_read):
         return False
     read_from_port.LAST_TIME = time.time()
 
     if (SERIAL.isOpen() == False):
-        write_to_port(ardynamic.arduino_are_you_there())  # try to find arduino
+        add_instruction_to_queue(ardynamic.arduino_are_you_there(), False)  # try to find arduino
         return False
 
     try:
@@ -129,25 +131,30 @@ def read_from_port():
 
 def add_instruction_to_queue(instruction, should_append_existing_instruction):
     global INSTRUCTION_QUEUE
+    global queue_print_append
     add_instruction_to_queue.LAST_TIME
-    wait_seconds_before_trying_to_append_it = 0.05
-    max_queue_limit = 1000
-
+    wait_seconds_before_trying_to_append_it = 0.1
+    max_queue_limit = 50
     # DO NOT MESS
-    if (time.time() - add_instruction_to_queue.LAST_TIME < wait_seconds_before_trying_to_append_it):
+    if (should_append_existing_instruction and time.time() - add_instruction_to_queue.LAST_TIME < wait_seconds_before_trying_to_append_it):
         return False
     add_instruction_to_queue.LAST_TIME = time.time()
 
-    if (len(INSTRUCTION_QUEUE) > max_queue_limit):
+    if (len(INSTRUCTION_QUEUE) >= max_queue_limit):
         return False
 
     if (should_append_existing_instruction == False):
+
         if (instruction not in INSTRUCTION_QUEUE):
             INSTRUCTION_QUEUE.append(instruction)
+            if (queue_print_append): print(
+                current_date() + "-[queue:" + str(len(INSTRUCTION_QUEUE)) + " instruction:" + instruction + "]")
         else:
             return False
     else:
         INSTRUCTION_QUEUE.append(instruction)
+        if (queue_print_append): print(
+            current_date() + "-[queue:" + str(len(INSTRUCTION_QUEUE)) + " instruction:" + instruction + "]")
 
 
 # GLOBALS
@@ -157,3 +164,11 @@ SERIAL = serial.Serial()
 write_to_port.LAST_TIME = time.time()
 read_from_port.LAST_TIME = time.time()
 add_instruction_to_queue.LAST_TIME = time.time()
+
+# HEADER
+write_print_connection = True  # if port is opened
+write_print_sent = True  # data writed to the port
+write_print_error = True  # any kind of error
+write_print_salute = True  # slave salutes you as
+
+queue_print_append = True
