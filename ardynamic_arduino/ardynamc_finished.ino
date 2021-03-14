@@ -1,5 +1,6 @@
 //PARAMETERS
 //BUFFER SIZE IS 64: SO MASTER DEVICE MUST WAIT A BIT FOR ARDUINO TO READ BUFFER OR ACKNOWLEDGEMENT IS NEEDED.
+//BY DEFAULT ALL OF THE ARDUINO PINS ARE INPUT, SO YOU MAY USE PULL_DOWN. THUS, YOU MAY AVOID PROBLEMS ENCOUNTERED DURING BOOTUP
 char data[80];                    //Records serial read to be processed later
 const char start_del = '#';       //first character of any serial data
 const char end_del = '$';         //last character of any serial data
@@ -80,7 +81,7 @@ void try_to_use_serial_data() { // used in read_serial()
   if (value_length > MAX_VALUE_LENGTH || value_length < 0 || data[7] != ':') return;
 
   //------------------------------------------------------------------------------
-  if (value_type == 0)      value_type_0(); //HALT
+  if (value_type == 0)      value_type_0(value_length); //HALT
   else if (value_type == 1) value_type_1(); //INPUT PIN
   else if (value_type == 2) value_type_2(); //INPUT_PULLUP PIN
   else if (value_type == 3) value_type_3(); //OUTPUT PIN
@@ -193,8 +194,9 @@ int convert_to_int(int start, int integer_length) {
 
 //TO SIMPLFY CODE
 //PRINT FORMAT; TYPE:type.val:  COMMENT: COMMENT.val:    PIN:pin.val:  ---ANYTHING---);
-void value_type_0() {//---
-  if (GIVE_FEEDBACK)Serial.println("#TPYE:0:DESCRIPTION:not_in_use$");
+void value_type_0(int value_length) {//---
+  if (!isValueNumeric(8, 3))return;
+  if(value_length==3 && convert_to_int(8, 3)==0) Serial.println("#HELLO,ITS ME$");
 }
 void value_type_1() {//INPUT_FLOAT
   if (!isValueNumeric(8, 3))return;

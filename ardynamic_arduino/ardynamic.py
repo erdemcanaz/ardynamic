@@ -4,7 +4,8 @@ def to_str(integer, length):
     number_of_additional_zeros= length-len(str(integer))
     return_str =  "0"*number_of_additional_zeros+ str(integer)
     return return_str
-
+def arduino_is_that_you():
+    return "#000:003:000$"
 def pin_mode(pin_no, mode):
     if(mode == "INPUT"):
         return  "#001:003:"+to_str(pin_no,3)+"$"
