@@ -28,6 +28,7 @@ def write_to_port():
     # Instead of true or false you may return-> 0:None; 1:instruction has been sent;...
     write_to_port.LAST_TIME  # seconds from epoch
     global SERIAL
+    global INSTRUCTION_QUEUE
     # SERIAL PROTOCOL: UART-SERIAL_8N1
     baud_rate = 9600
     write_timeout = 0.2
@@ -45,15 +46,21 @@ def write_to_port():
     # DO NOT MESS
     if (time.time() - write_to_port.LAST_TIME < wait_seconds_before_write):
         return False
-    else:
-        write_to_port.LAST_TIME = time.time()
+    write_to_port.LAST_TIME = time.time()
+
+    instruction = ""
+    if (len(INSTRUCTION_QUEUE) == 0):
+        return False
+    instruction = INSTRUCTION_QUEUE[0]
+
     if (SERIAL.isOpen()):
         try:
             SERIAL.write(instruction.encode())
             if (print_sent): print(
                 current_date() + "-(instruction \"" + instruction + "\" has been succesfully sent over \"" + str(
                     SERIAL.name) + "\")")
-            return True  # data has been sent
+            INSTRUCTION_QUEUE.pop(0)#remove this instruction from queue
+            return True  # instruction has been sent
         except:
             if (print_error): print(current_date() + "-{communication has been lost during data transfer}")
             SERIAL.close()
@@ -121,18 +128,29 @@ def read_from_port():
         return False
 
 
-def add_instruction_to_queque(instruction, should_append_existing_instruction):
-    global INSTRUCTION_QUEQUE
+def add_instruction_to_queue(instruction, should_append_existing_instruction):
+    global INSTRUCTION_QUEUE
+    add_instruction_to_queue.LAST_TIME
+    wait_seconds_before_trying_to_append_it = 0.05
+
+    # DO NOT MESS
+    if (time.time() - add_instruction_to_queue.LAST_TIME < wait_seconds_before_trying_to_append_it):
+        return False
+    add_instruction_to_queue.LAST_TIME = time.time()
+
     if (should_append_existing_instruction == False):
-        if (instruction not in INSTRUCTION_QUEQUE):
-            INSTRUCTION_QUEQUE.append(instruction)
+        if (instruction not in INSTRUCTION_QUEUE):
+            INSTRUCTION_QUEUE.append(instruction)
         else:
             return False
+    else:
+        INSTRUCTION_QUEUE.append(instruction)
 
 
 # GLOBALS
-INSTRUCTION_QUEQUE = []
+INSTRUCTION_QUEUE = []
 # INITIALS
 SERIAL = serial.Serial()
 write_to_port.LAST_TIME = time.time()
 read_from_port.LAST_TIME = time.time()
+add_instruction_to_queue.LAST_TIME = time.time()
