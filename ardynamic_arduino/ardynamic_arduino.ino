@@ -6,5 +6,5 @@ void setup() {
 }
 
 void loop() {
-  ARDYNAMIC_RUN();  
+  //ARDYNAMIC_RUN();  
 }
