@@ -35,13 +35,13 @@ def write_to_port():
     read_timeout = 0.2
     expected_acknowledgment_msg = "#YES,I AM HERE$"
     wait_seconds_acknowledgment = 0.05
-    wait_seconds_before_write = 0.2  # Do not write continuosuly, wait this much before another insturction
+    wait_seconds_before_write = 0.1  # Do not write continuosuly, wait this much before another insturction
     wait_seconds_let_slave_configure_himself = 0.1  # After connecting to a port, wait this much
     delay_if_trying_to_connect = 1  # if SERIAL.isOpen() == False; wait this much until next attempt
     print_connection = True  # if port is opened
-    print_sent = False  # data writed to the port
+    print_sent = True  # data writed to the port
     print_error = True  # any kind of error
-    print_salute = False  # slave salutes you as
+    print_salute = True  # slave salutes you as
 
     # DO NOT MESS
     if (time.time() - write_to_port.LAST_TIME < wait_seconds_before_write):
@@ -59,7 +59,7 @@ def write_to_port():
             if (print_sent): print(
                 current_date() + "-(instruction \"" + instruction + "\" has been succesfully sent over \"" + str(
                     SERIAL.name) + "\")")
-            INSTRUCTION_QUEUE.pop(0)#remove this instruction from queue
+            INSTRUCTION_QUEUE.pop(0)  # remove this instruction from queue
             return True  # instruction has been sent
         except:
             if (print_error): print(current_date() + "-{communication has been lost during data transfer}")
@@ -73,11 +73,10 @@ def write_to_port():
             try:
                 SERIAL = serial.Serial(port=ports.device, baudrate=baud_rate, parity=serial.PARITY_NONE,
                                        stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS,
-                                       write_timeout=write_timeout, read_timeout=read_timeout)
+                                       write_timeout=write_timeout, timeout=read_timeout)
                 time.sleep(wait_seconds_let_slave_configure_himself)
                 SERIAL.write(ardynamic.arduino_are_you_there().encode("utf-8"))
                 time.sleep(wait_seconds_acknowledgment)
-
                 reply_from_slave = ""
                 if (SERIAL.in_waiting != 0):
                     while (SERIAL.in_waiting > 0):
@@ -132,11 +131,15 @@ def add_instruction_to_queue(instruction, should_append_existing_instruction):
     global INSTRUCTION_QUEUE
     add_instruction_to_queue.LAST_TIME
     wait_seconds_before_trying_to_append_it = 0.05
+    max_queue_limit = 1000
 
     # DO NOT MESS
     if (time.time() - add_instruction_to_queue.LAST_TIME < wait_seconds_before_trying_to_append_it):
         return False
     add_instruction_to_queue.LAST_TIME = time.time()
+
+    if (len(INSTRUCTION_QUEUE) > max_queue_limit):
+        return False
 
     if (should_append_existing_instruction == False):
         if (instruction not in INSTRUCTION_QUEUE):
