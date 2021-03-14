@@ -31,7 +31,7 @@ def write_to_port(instruction):
     global SERIAL
     wait_seconds_acknowledgment = 0.05
     expected_acknowledgment_msg = "#HELLO,ITS ME$"
-    wait_seconds = 0.01
+    wait_seconds = 0.1
     print_succes = True
     print_error  = True
     print_reply  = True
