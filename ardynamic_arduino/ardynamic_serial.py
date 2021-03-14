@@ -3,7 +3,7 @@ import serial.tools.list_ports
 import ardynamic
 
 
-def current_date():  # year,month,day,hour,minute,seconds
+def current_date():  # year,month,day,hour,minute,seconds, miliseconds
     strings = time.strftime("%Y,%m,%d,%H,%M,%S") + "," + str(round((time.time() % 1) * 1000) % 1000)
     t = strings.split(',')
     k = 3 - len(t[6])
@@ -24,10 +24,7 @@ def remove_unaccepted_characters(string):
     return return_string
 
 
-SERIAL = serial.Serial()
-
-
-def write_to_port(instruction):
+def write_to_port():
     # Instead of true or false you may return-> 0:None; 1:instruction has been sent;...
     write_to_port.LAST_TIME  # seconds from epoch
     global SERIAL
@@ -37,14 +34,15 @@ def write_to_port(instruction):
     read_timeout = 0.2
     expected_acknowledgment_msg = "#YES,I AM HERE$"
     wait_seconds_acknowledgment = 0.05
-    wait_seconds_before_write = 0.2
-    wait_seconds_let_arduino_configure_himself = 0.1
-    delay_if_trying_to_connect = 1
-    print_connection = True
-    print_sent = False
-    print_error = True
-    print_salute = False
+    wait_seconds_before_write = 0.2  # Do not write continuosuly, wait this much before another insturction
+    wait_seconds_let_slave_configure_himself = 0.1  # After connecting to a port, wait this much
+    delay_if_trying_to_connect = 1  # if SERIAL.isOpen() == False; wait this much until next attempt
+    print_connection = True  # if port is opened
+    print_sent = False  # data writed to the port
+    print_error = True  # any kind of error
+    print_salute = False  # slave salutes you as
 
+    # DO NOT MESS
     if (time.time() - write_to_port.LAST_TIME < wait_seconds_before_write):
         return False
     else:
@@ -69,7 +67,7 @@ def write_to_port(instruction):
                 SERIAL = serial.Serial(port=ports.device, baudrate=baud_rate, parity=serial.PARITY_NONE,
                                        stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS,
                                        write_timeout=write_timeout, read_timeout=read_timeout)
-                time.sleep(wait_seconds_let_arduino_configure_himself)
+                time.sleep(wait_seconds_let_slave_configure_himself)
                 SERIAL.write(ardynamic.arduino_are_you_there().encode("utf-8"))
                 time.sleep(wait_seconds_acknowledgment)
 
@@ -103,6 +101,7 @@ def read_from_port():
 
     if (time.time() - write_to_port.LAST_TIME < wait_seconds_before_read):
         return False
+    read_from_port.LAST_TIME = time.time()
 
     if (SERIAL.isOpen() == False):
         write_to_port(ardynamic.arduino_are_you_there())  # try to find arduino
@@ -114,11 +113,26 @@ def read_from_port():
             while (SERIAL.in_waiting > 0):
                 reading += SERIAL.read().decode("utf-8")
             reading = remove_unaccepted_characters(reading)
-        return reading
+        if (reading != ""):
+            return reading
+        else:
+            return False
     except:
-        pass
-    return ""
+        return False
 
-##INITIALS
+
+def add_instruction_to_queque(instruction, should_append_existing_instruction):
+    global INSTRUCTION_QUEQUE
+    if (should_append_existing_instruction == False):
+        if (instruction not in INSTRUCTION_QUEQUE):
+            INSTRUCTION_QUEQUE.append(instruction)
+        else:
+            return False
+
+
+# GLOBALS
+INSTRUCTION_QUEQUE = []
+# INITIALS
+SERIAL = serial.Serial()
 write_to_port.LAST_TIME = time.time()
 read_from_port.LAST_TIME = time.time()
