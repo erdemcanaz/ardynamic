@@ -30,12 +30,12 @@ def write_to_port():
     global SERIAL
     global INSTRUCTION_QUEUE
     # SERIAL PROTOCOL: UART-SERIAL_8N1
+    global write_wait_seconds_before_write # Do not write continuosuly, wait this much before another insturction
     baud_rate = 9600
     write_timeout = 0.2
     read_timeout = 0.2
     expected_acknowledgment_msg = "#YES,I AM HERE$"
     wait_seconds_acknowledgment = 0.05  # ask for acknowledgement, then wait slave to send all the bytes over the port
-    wait_seconds_before_write = 0.05 # Do not write continuosuly, wait this much before another insturction
     wait_seconds_let_slave_configure_himself = 0.1  # After connecting to a port, wait this much
     delay_if_trying_to_connect = 1  # if SERIAL.isOpen() == False; wait this much until next attempt
     # INFORM
@@ -45,7 +45,7 @@ def write_to_port():
     global write_print_salute  # slave salutes you as
 
     # DO NOT MESS
-    if (time.time() - write_to_port.LAST_TIME < wait_seconds_before_write):
+    if (time.time() - write_to_port.LAST_TIME < write_wait_seconds_before_write):
         return False
     write_to_port.LAST_TIME = time.time()
 
@@ -166,6 +166,8 @@ read_from_port.LAST_TIME = time.time()
 add_instruction_to_queue.LAST_TIME = time.time()
 
 # HEADER
+
+write_wait_seconds_before_write = 0.05
 write_print_connection = True  # if port is opened
 write_print_sent = True  # data writed to the port
 write_print_error = True  # any kind of error
