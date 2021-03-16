@@ -23,8 +23,6 @@ def current_date():  # year,month,day,hour,minute,seconds, miliseconds
     s = ('0' * k)
     string_date = t[3] + ":" + t[4] + ":" + t[5] + ":" + t[6] + s + "-" + t[2] + "." + t[1] + "." + t[0]
     return string_date
-
-
 def sign_up(email, password):
     global auth
     global when_token_is_received
@@ -37,8 +35,6 @@ def sign_up(email, password):
     except:
         print(current_date() + "-(pyrebase)-[sign_up]-{could not signed up as (" + email + "," + password + ")}")
         return user
-
-
 def sign_in(email, password):
     global auth
     global when_token_is_received
@@ -51,8 +47,6 @@ def sign_in(email, password):
     except:
         print(current_date() + "-(pyrebase)-[sign_up]-{could not signed in as (" + email + "," + password + ")}")
         return user
-
-
 def if_needed_refresh_token(current_user, token_time_out_seconds):
     global when_token_is_received
     global auth
@@ -70,11 +64,9 @@ def if_needed_refresh_token(current_user, token_time_out_seconds):
 
     when_token_is_received = time.time()
     print(current_date() + "-(pyrebase)-[refresh_token]-{token is refreshed for email:" + str(current_user['email']) + "}")
+def keep_user_active(email_new, password_new, token_timeout,check_interval_seconds):
 
-
-def keep_user_active(email_new, password_new, token_timeout):
-
-    if (keep_user_active.VARIABLES[0] != None and time.time() - keep_user_active.VARIABLES[3] < 1): return keep_user_active.VARIABLES[0]
+    if (keep_user_active.VARIABLES[0] != None and time.time() - keep_user_active.VARIABLES[3] < check_interval_seconds): return keep_user_active.VARIABLES[0]
     keep_user_active.VARIABLES[3] = time.time()
 
     if (keep_user_active.VARIABLES[1] == None or keep_user_active.VARIABLES[1] != email_new):
@@ -103,6 +95,7 @@ def firebase_setup(firebaseConfig):
     auth = firebase_server.auth()
     data_base = firebase_server.database()
 
+
 def append_pyrebase_write_queue(data_name, data):
     global PYREBASE_DATA_QUEUE
     max_queue_limit = 500
@@ -117,6 +110,33 @@ def append_pyrebase_write_queue(data_name, data):
     else:
         return False
 
+def push_from_queue_to_firebase(interval_seconds):
+    global  data_base
+    global  user
+    global  recent_data_to_push
+
+    time_passed = time.time()-push_from_queue_to_firebase.LAST_TIME
+    if(time_passed<interval_seconds):
+        return False
+    push_from_queue_to_firebase.LAST_TIME = time.time()
+
+    if(user == None): return False
+
+    ID = user['localId']
+    if(len(recent_data_to_push)==0): return False
+
+    recent_data_to_push['timeStamp'] = time.time()
+    #try:
+    #data_base.child("test").child(ID).update({str(data_name):str(data)}, user['idToken'])
+    data_base.child("test").child(ID).update(recent_data_to_push, user['idToken'])
+    print(current_date() + "-(pyrebase)-[push_from_queue_to_firebase]-{data is pushed to the server}")
+    return True
+    #except:
+    print(current_date() + "-(pyrebase)-[push_from_queue_to_firebase]-{an error occured while pushing}")
+    user = None
+    return False
+push_from_queue_to_firebase.LAST_TIME = 0
+#-----------------------------------------------------------------
 # GLOBALS
 firebase_server = None
 auth = None
@@ -124,9 +144,13 @@ data_base = None
 user = None
 when_token_is_received = None
 PYREBASE_DATA_QUEUE = []
+recent_data_to_push = {}
 # CODE
+
+#EXAMPLE CODE BLOCK
 firebase_setup(FIREBASE_CONFIG)
 while True:
-    user = keep_user_active("ahmetcem@gmail.com", "12345678", 15)
-    append_pyrebase_write_queue("erdem",1)
-    time.sleep(3)
+    user = keep_user_active("confarm@gmail.com", "12345678", 60,1)
+    recent_data_to_push = {"A":random.random(),"B":random.random(),"C":random.random(),"D":random.random(),"E":random.random(),"F":random.random(),"G":random.random(),}
+    push_from_queue_to_firebase(2)
+
