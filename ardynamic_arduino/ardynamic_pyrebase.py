@@ -70,9 +70,12 @@ def keep_user_active(email_new, password_new, token_timeout,check_interval_secon
     keep_user_active.VARIABLES[3] = time.time()
 
     if (keep_user_active.VARIABLES[1] == None or keep_user_active.VARIABLES[1] != email_new):
+        if (keep_user_active.VARIABLES[0] != None):
+            print(current_date() + "-(pyrebase)-[keep_user_active]-{new account email:" + str(email_new)+"}")
         keep_user_active.VARIABLES[0] = None
         keep_user_active.VARIABLES[1] = email_new
         keep_user_active.VARIABLES[2] = password_new
+
 
     if (keep_user_active.VARIABLES[0] == None): keep_user_active.VARIABLES[0] = sign_in(keep_user_active.VARIABLES[1], keep_user_active.VARIABLES[2])
     if (keep_user_active.VARIABLES[0] == None): keep_user_active.VARIABLES[0] = sign_up(keep_user_active.VARIABLES[1], keep_user_active.VARIABLES[2])
@@ -149,8 +152,12 @@ recent_data_to_push = {}
 
 #EXAMPLE CODE BLOCK
 firebase_setup(FIREBASE_CONFIG)
+start = time.time()
 while True:
-    user = keep_user_active("confarm@gmail.com", "12345678", 60,1)
+    if( time.time()-start<20):
+        user = keep_user_active("a@gmail.com", "12345678", 5,1)
+    else:
+        user = keep_user_active("b@gmail.com", "12345678", 60, 1)
     recent_data_to_push = {"A":random.random(),"B":random.random(),"C":random.random(),"D":random.random(),"E":random.random(),"F":random.random(),"G":random.random(),}
     push_from_queue_to_firebase(2)
 
