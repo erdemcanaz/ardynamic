@@ -63,14 +63,6 @@ def set_string_register(which_string_register, string):
         return None
     return "#011:"+to_str(len(string)+2,3)+":"+to_str(which_string_register,2)+string+"$"
 
-def should_print_read(which_read, should):
-    if(should == 'NO' or should == 0):
-        return "012:004:0"+to_str(which_read,3)+"$"
-    elif(should == 'YES' or should == 1):
-        return "012:004:1"+to_str(which_read,3)+"$"
-    else:
-        print("ERROR:given answer= (" + str(should) + ") is not defined")
-        return None
 
 def should_print_read(which_read, should):
     if(should == 'NO' or should == 0):

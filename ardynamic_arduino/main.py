@@ -1,15 +1,16 @@
 import ardynamic_serial
 import ardynamic
 
+
 while True:
     #write_to_port()
     ardynamic_serial.write_wait_seconds_before_write=0.5
     ardynamic_serial.write_print_sent=False
-    ardynamic_serial.write_print_salute=False
-    ardynamic_serial.write_print_error=False
+    ardynamic_serial.write_print_salute=True
+    ardynamic_serial.write_print_error=True
     ardynamic_serial.write_print_connection=True
     #queue informative
-    ardynamic_serial.queue_print_append=True
+    ardynamic_serial.queue_print_append=False
 
     # UI()-------------------------------------------------------
 
@@ -26,3 +27,4 @@ while True:
     #if (read != False):print(ardynamic_serial.current_date()+":"+read)
     #if (read != False): print(read)
     ardynamic_serial.write_to_port()
+
