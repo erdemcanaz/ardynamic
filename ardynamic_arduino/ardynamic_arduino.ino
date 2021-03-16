@@ -1,3 +1,5 @@
+#include ardynamic_lib
+
 void setup() {
   //one start bit, 8 data bits, no parity bit, 1 stop bit
   Serial.begin(9600, SERIAL_8N1);

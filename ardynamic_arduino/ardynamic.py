@@ -106,6 +106,24 @@ def reset_print_read_register():
 def reset_print_variable_register():
     return "#016:001:2$"
 
+# READ FUNCTIONS
+def isInputReadValue(read):
+    if(read == False):return
+
+    if(read[0]!='#' and read[len(read)-1]!='$'):return
+
+
+print_mode = 0
+read_register = [None for _ in range(100)]
+pin_functions = [None for _ in range(100)]
+
+
+
+
+
+
+
+
 
 
 

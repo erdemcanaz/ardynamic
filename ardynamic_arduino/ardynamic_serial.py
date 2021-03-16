@@ -76,6 +76,7 @@ def write_to_port():
                                        stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS,
                                        write_timeout=write_timeout, timeout=read_timeout)
                 time.sleep(wait_seconds_let_slave_configure_himself)
+                SERIAL.reset_input_buffer()
                 SERIAL.write(ardynamic.arduino_are_you_there().encode("utf-8"))
                 time.sleep(wait_seconds_acknowledgment)
                 reply_from_slave = ""
@@ -83,7 +84,7 @@ def write_to_port():
                     while (SERIAL.in_waiting > 0):
                         reply_from_slave += SERIAL.read().decode("utf-8")
                     reply_from_slave = remove_unaccepted_characters(reply_from_slave)
-
+                print(reply_from_slave)
                 if (expected_acknowledgment_msg == reply_from_slave):
                     if (write_print_connection): print(
                         current_date() + "-(connected to port \"" + str(ports.device) + "\")")

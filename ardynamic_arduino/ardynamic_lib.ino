@@ -134,10 +134,15 @@ void set_pins() {
     }
   }
 }
+
+unsigned long last_print_time = 0
 void print_read_and_variable_registers() {
+  if(millis()-last_print_time<100) return;
+  last_print_time = millis();
   if (PRINT_MODE == 0)return;
   //READ
   for (int i = 0; i < MAX_PIN; i++)if (PRINT_READ_REGISTER[i])Serial.println("#R:" + String(i) + ":" + String(READ_REGISTER[i]) + "$");
+ 
   //VARIABLE
   for (int i = 0; i < MAX_PIN; i++)if (PRINT_VARIABLE_REGISTER_INT[i])Serial.println("#V:" + String(i) + ":" + String(VARIABLE_REGISTER_INT[i]) + "$");
   if (PRINT_MODE == 1)PRINT_MODE = 0;
